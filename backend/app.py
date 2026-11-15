@@ -43,6 +43,7 @@ def llm_analysis(moisture , humidity , temp , n , p , k , ph):
 def sensort_data():
     global last_llm_call_time
     data = request.get_json(silent=True) ; 
+    #print(data) 
     if not data:
         res = {
             "status":200,
@@ -59,7 +60,7 @@ def sensort_data():
     latest_data['P'] = data.get("P",18.00) ; 
     latest_data['K'] = data.get("K",120.36) ; 
     latest_data['Ph'] =data.get("Ph",7.11) ; 
-    #print(latest_data)
+    print(latest_data)
     curr_time = time.time() 
     with lock:
         if curr_time - last_llm_call_time>= llm_cool_down_seconds:
