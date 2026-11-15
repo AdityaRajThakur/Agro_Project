@@ -55,10 +55,10 @@ def sensort_data():
     latest_data['Soil_Moisture'] = data.get("moisture") 
     latest_data['Humidity'] = data.get("humidity") 
     latest_data['Temperature'] = data.get("temp") ; 
-    latest_data['N'] = data.get("N") ; 
-    latest_data['P'] = data.get("P") ; 
-    latest_data['K'] = data.get("K") ; 
-    latest_data['Ph'] =data.get("Ph") ; 
+    latest_data['N'] = data.get("N" , 190.74) ; 
+    latest_data['P'] = data.get("P",18.00) ; 
+    latest_data['K'] = data.get("K",120.36) ; 
+    latest_data['Ph'] =data.get("Ph",7.11) ; 
     #print(latest_data)
     curr_time = time.time() 
     with lock:
@@ -78,6 +78,14 @@ def sensort_data():
 
 
 
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=80)
 
 
 
+
+#command 
+# to run flask app 
+# flask --app app run 
+# sudo ../env/bin/flask --app app run --host=0.0.0.0 --port=80
+# chmod +777 key && ssh -i <key.pem> ubuntu@<publicip>
