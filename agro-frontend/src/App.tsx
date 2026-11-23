@@ -63,7 +63,7 @@ function App() {
 
         {/* Section 1: LLM Input (Live Sensor Telemetry from Robo-Car) */}
         <section>
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-3">
             Live Field Telemetry
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
