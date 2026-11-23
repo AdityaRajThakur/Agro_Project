@@ -66,8 +66,8 @@ function App() {
           <h2 className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-3">
             Live Field Telemetry
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-5 flex items-center justify-between">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 ">
+            <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-5 flex items-center justify-between transition-all duration-200 hover:border-slate-500 ">
               <div>
                 <p className="text-xs text-slate-400">Ambient Temperature</p>
                 <p className="text-3xl font-bold text-rose-400 mt-1">
@@ -77,7 +77,7 @@ function App() {
               <span className="text-2xl">🌡️</span>
             </div>
 
-            <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-5 flex items-center justify-between">
+            <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-5 flex items-center justify-between transition-all duration-200 hover:border-slate-500 ">
               <div>
                 <p className="text-xs text-slate-400">Air Humidity</p>
                 <p className="text-3xl font-bold text-sky-400 mt-1">
@@ -87,9 +87,39 @@ function App() {
               <span className="text-2xl">💧</span>
             </div>
 
-            <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-5 flex items-center justify-between">
+            <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-5 flex items-center justify-between transition-all duration-200 hover:border-slate-500 ">
               <div>
                 <p className="text-xs text-slate-400">Soil Moisture</p>
+                <p className="text-3xl font-bold text-emerald-400 mt-1">
+                  {data ? `${data.soil} %` : '--'}
+                </p>
+              </div>
+              <span className="text-2xl">🌿</span>
+            </div>
+
+            <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-5 flex items-center justify-between transition-all duration-200 hover:border-slate-500 ">
+              <div>
+                <p className="text-xs text-slate-400">Nitrogen</p>
+                <p className="text-3xl font-bold text-emerald-400 mt-1">
+                  {data ? `${data.soil} %` : '--'}
+                </p>
+              </div>
+              <span className="text-2xl">🌿</span>
+            </div>  
+
+            <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-5 flex items-center justify-between transition-all duration-200 hover:border-slate-500 ">
+              <div>
+                <p className="text-xs text-slate-400">Potassium</p>
+                <p className="text-3xl font-bold text-emerald-400 mt-1">
+                  {data ? `${data.soil} %` : '--'}
+                </p>
+              </div>
+              <span className="text-2xl">🌿</span>
+            </div>
+
+            <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-5 flex items-center justify-between transition-all duration-200 hover:border-slate-500 ">
+              <div>
+                <p className="text-xs text-slate-400">Phosphorus</p>
                 <p className="text-3xl font-bold text-emerald-400 mt-1">
                   {data ? `${data.soil} %` : '--'}
                 </p>
