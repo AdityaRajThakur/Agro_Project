@@ -1,122 +1,146 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useState, useEffect, useCallback } from 'react';
+import Navbar from './components/Navbar';
+import Card from './components/Card';
+import axios from 'axios' ; 
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+interface InsightsResponse {
+  temp: number;
+  hum: number;
+  soil: number;
+  crops?: string[];
+  fertilizers?: string[];
+  llm_advice: string;
+  last_updated: string | null;
 }
 
-export default App
+const EC2_INSIGHTS_URL = 'http://YOUR_EC2_PUBLIC_IP:3000/insights';
+
+function App() {
+  const [data, setData] = useState<InsightsResponse | null>(null);
+  const [isConnected, setIsConnected] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const fetchInsights = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const res = await axios.get<InsightsResponse>(EC2_INSIGHTS_URL,{
+        timeout: 4000 
+      });
+      setData(res.data) ; 
+      setIsConnected(true) ; 
+      setErrorMsg(null) ; 
+    } catch (err) {
+      setIsConnected(false);
+      setErrorMsg('Unable to reach EC2 backend. Check that Flask is running on port 3000 with CORS enabled.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchInsights();
+    const interval = setInterval(fetchInsights, 5000);
+    return () => clearInterval(interval);
+  }, [fetchInsights]);
+
+  return (
+    <div className="min-h-screen w-full bg-slate-950 text-slate-100 flex flex-col">
+      <Navbar
+        isConnected={isConnected}
+        isLoading={isLoading}
+        lastUpdated={data?.last_updated ?? null}
+        onRefresh={fetchInsights}
+      />
+
+      <main className="max-w-6xl w-full mx-auto px-6 py-8 flex flex-col gap-6">
+        {errorMsg && (
+          <div className="rounded-xl bg-rose-500/10 border border-rose-500/30 px-4 py-3 text-sm text-rose-300">
+            {errorMsg}
+          </div>
+        )}
+
+        {/* Section 1: LLM Input (Live Sensor Telemetry from Robo-Car) */}
+        <section>
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">
+            Live Field Telemetry
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-5 flex items-center justify-between">
+              <div>
+                <p className="text-xs text-slate-400">Ambient Temperature</p>
+                <p className="text-3xl font-bold text-rose-400 mt-1">
+                  {data ? `${data.temp.toFixed(1)} °C` : '--'}
+                </p>
+              </div>
+              <span className="text-2xl">🌡️</span>
+            </div>
+
+            <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-5 flex items-center justify-between">
+              <div>
+                <p className="text-xs text-slate-400">Air Humidity</p>
+                <p className="text-3xl font-bold text-sky-400 mt-1">
+                  {data ? `${data.hum.toFixed(0)} %` : '--'}
+                </p>
+              </div>
+              <span className="text-2xl">💧</span>
+            </div>
+
+            <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-5 flex items-center justify-between">
+              <div>
+                <p className="text-xs text-slate-400">Soil Moisture</p>
+                <p className="text-3xl font-bold text-emerald-400 mt-1">
+                  {data ? `${data.soil} %` : '--'}
+                </p>
+              </div>
+              <span className="text-2xl">🌿</span>
+            </div>
+          </div>
+        </section>
+
+        {/* Section 2: Main Crops & Fertilizer Cards (LLM Structured Output) */}
+        <section>
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">
+            AI Agronomist Recommendations
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card
+              title="Recommended Crops"
+              subtitle="Best suited for current soil moisture & climate"
+              icon="🌾"
+              accent="emerald"
+              items={data?.crops ?? []}
+              emptyText="No crop recommendations yet. Waiting for telemetry..."
+            />
+
+            <Card
+              title="Fertilizer & Nutrient Plan"
+              subtitle="Suggested soil amendments & NPK schedule"
+              icon="🧪"
+              accent="amber"
+              items={data?.fertilizers ?? []}
+              emptyText="No fertilizer recommendations yet. Waiting for telemetry..."
+            />
+          </div>
+        </section>
+
+        {/* Section 3: Detailed LLM Summary */}
+        <section>
+          <Card
+            title="Agronomist Field Summary"
+            subtitle="Real-time irrigation & crop stress analysis"
+            icon="🤖"
+            accent="sky"
+          >
+            <p className="text-slate-200 whitespace-pre-line">
+              {data?.llm_advice || 'Waiting for first sensor packet from Agro-Bot...'}
+            </p>
+          </Card>
+        </section>
+      </main>
+    </div>
+  );
+}
+
+export default App;
