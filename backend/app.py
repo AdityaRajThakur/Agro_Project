@@ -72,6 +72,10 @@ def get_insights():
     latest_data1['soil'] = latest_data['Soil_Moisture']
     latest_data1['crops'] = []
     latest_data1['fertilizers'] = []
+    latest_data1['N'] = latest_data['N']
+    latest_data1['P'] = latest_data['P']
+    latest_data1['K'] = latest_data['K']
+    latest_data1['Ph'] = latest_data['Ph']
     latest_data1['llm_advice'] = latest_data['llm']
     latest_data1['last_updated'] = latest_data['last_updated']
     return jsonify(latest_data1) 
