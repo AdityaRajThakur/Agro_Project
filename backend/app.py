@@ -3,11 +3,22 @@ from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
 import threading
 import os , time 
+from flask_cors import CORS
+
 load_dotenv() 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
 
 latest_data ={
-    "llm" : "waiting for reading data" 
+    "last_updated" : None, 
+    "Soil_Moisture" : 88  , 
+    "Humidity" :81 , 
+    "Temperature" : 25 , 
+    "N" : 190.74 , 
+    "P" : 18.00 , 
+    "K" : 120.36 , 
+    "Ph" : 7.11 , 
+    "llm" : "" 
 } 
 prompt = """you have 10+ of experience in  agricultural, fertilizers and crops recommandations.
 I have measured my agricultural land parameters such as soil moisture, npk , ph, humidity and temperature. My soil type is black and current season is rabi.
@@ -31,6 +42,7 @@ def Sensor_project():
     return "invalid url" ; 
 
 
+
 def llm_analysis(moisture , humidity , temp , n , p , k , ph):
     global latest_data
     try:
@@ -39,6 +51,30 @@ def llm_analysis(moisture , humidity , temp , n , p , k , ph):
         latest_data['llm'] = ans.content
     except Exception as e : 
         print(e) 
+"""sumary_line
+interface InsightsResponse {
+  temp: number;
+  hum: number;
+  soil: number;
+  crops?: string[];
+  fertilizers?: string[];
+  llm_advice: string;
+  last_updated: string | null;
+}
+"""
+@app.route('/insights' , methods=["GET"])
+def get_insights():
+
+    print(latest_data)
+    latest_data1={} 
+    latest_data1['temp'] = latest_data['Temperature'] 
+    latest_data1['hum'] = latest_data['Humidity']
+    latest_data1['soil'] = latest_data['Soil_Moisture']
+    latest_data1['crops'] = []
+    latest_data1['fertilizers'] = []
+    latest_data1['llm_advice'] = latest_data['llm']
+    latest_data1['last_updated'] = latest_data['last_updated']
+    return jsonify(latest_data1) 
 @app.route('/data' , methods=["POST"])
 def sensort_data():
     global last_llm_call_time

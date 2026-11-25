@@ -14,7 +14,10 @@ interface InsightsResponse {
   last_updated: string | null;
 }
 
-const EC2_INSIGHTS_URL = 'http://YOUR_EC2_PUBLIC_IP:3000/insights';
+const EC2_INSIGHTS_URL =  "http://127.0.0.1:5000/insights" ; 
+
+//const EC2_INSIGHTS_URL = 'http://YOUR_EC2_PUBLIC_IP:3000/insights';
+//{'last_updated': None, 'Soil_Moisture': 88, 'Humidity': 88, 'Temperature': 25, 'N': 190.74, 'P': 18.0, 'K': 120.36, 'Ph': 7.11, 'llm': 'waiting for reading data'}
 
 function App() {
   const [data, setData] = useState<InsightsResponse | null>(null);
@@ -28,6 +31,7 @@ function App() {
       const res = await axios.get<InsightsResponse>(EC2_INSIGHTS_URL,{
         timeout: 4000 
       });
+      console.log('Fetched insights:', res.data);
       setData(res.data) ; 
       setIsConnected(true) ; 
       setErrorMsg(null) ; 
@@ -130,30 +134,7 @@ function App() {
         </section>
 
         {/* Section 2: Main Crops & Fertilizer Cards (LLM Structured Output) */}
-        <section>
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">
-            AI Agronomist Recommendations
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card
-              title="Recommended Crops"
-              subtitle="Best suited for current soil moisture & climate"
-              icon="🌾"
-              accent="emerald"
-              items={data?.crops ?? []}
-              emptyText="No crop recommendations yet. Waiting for telemetry..."
-            />
 
-            <Card
-              title="Fertilizer & Nutrient Plan"
-              subtitle="Suggested soil amendments & NPK schedule"
-              icon="🧪"
-              accent="amber"
-              items={data?.fertilizers ?? []}
-              emptyText="No fertilizer recommendations yet. Waiting for telemetry..."
-            />
-          </div>
-        </section>
 
         {/* Section 3: Detailed LLM Summary */}
         <section>
